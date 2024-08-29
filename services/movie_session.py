@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 
@@ -27,7 +28,7 @@ def get_movies_sessions(session_date: Optional[str] = None) -> QuerySet:
 
 
 def get_movie_session_by_id(movie_session_id: int) -> MovieSession:
-    return MovieSession.objects.get(id=movie_session_id)
+    return MovieSession.objects.get(pk=movie_session_id)
 
 
 def update_movie_session(
@@ -35,8 +36,11 @@ def update_movie_session(
         show_time: Optional[datetime] = None,
         movie_id: Optional[int] = None,
         cinema_hall_id: Optional[int] = None
-) -> MovieSession:
-    updated_movie_session = MovieSession.objects.get(id=session_id)
+) -> MovieSession | None:
+    if not show_time and not movie_id and not cinema_hall_id:
+        return None
+
+    updated_movie_session = MovieSession.objects.get(pk=session_id)
 
     if show_time:
         updated_movie_session.show_time = show_time
@@ -52,5 +56,6 @@ def update_movie_session(
     return updated_movie_session
 
 
-def delete_movie_session_by_id(session_id: int) -> MovieSession:
-    return MovieSession.objects.get(id=session_id).delete()
+def delete_movie_session_by_id(session_id: int) -> int:
+    deleted_count, _ = get_movie_session_by_id(session_id).delete()
+    return deleted_count
